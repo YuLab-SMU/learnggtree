@@ -1,0 +1,359 @@
+---
+title: "Visualizing phylogenetic data with ggtree"
+output: learnr::tutorial
+runtime: shiny_prerendered
+---
+
+
+```{r setup, include=FALSE}
+library(learnr)
+library(treeio)
+library(ggtree)
+```
+
+
+
+## Visualizing a tree
+
+```{r rtree, exercise = TRUE}
+library(ggtree)
+set.seed(2024-07-18)
+t1 <- rtree(30)
+
+t1
+```
+
+```{r tree-layout, exercise = TRUE, exercise.setup="rtree", fig.width=5, fig.height=10, out.width="95%"}
+# try different layouts:
+#   rectangular, dendrogram, slanted, ellipse, roundrect
+#   fan, circular, inward_circular, radial, equal_angle
+#   daylight, ape, igraph::layout_xxx
+
+ggtree(t1) 
+# ggtree(t1, layout = 'roundrect') 
+# ggtree(t1, layout = 'ellipse') 
+# ggtree(t1, layout = 'inward_circular') + xlim_tree(10)
+# ggtree(t1, layout = igraph::layout_with_kk) + geom_tiplab()
+```
+
+
+
+## A layered grammar of graphics
+
+
+```{r nhx-file, exercise=TRUE}
+library(treeio)
+
+tree_file <- system.file("extdata/NHX/ADH.nhx", package='treeio')
+tree_file
+```
+
+```{r nhx-tree, exercise=TRUE, exercise.setup="nhx-file"}
+tree <- read.nhx(tree_file)
+tree
+```
+
+### 1. tree structure
+
+```{r vis-nhx, exercise=TRUE, exercise.setup="nhx-tree"}
+library(ggtree)
+p <- ggtree(tree)
+p
+```
+
+### 2. tip labels
+
+```{r vis-nhx2, exercise=TRUE, exercise.setup="vis-nhx"}
+p <- p + geom_tiplab()
+p
+```
+
+### 3. displays the species
+
+```{r vis-nhx3, exercise=TRUE, exercise.setup="vis-nhx2", message=FALSE, warning=FALSE}
+p <- p + geom_label(aes(x=branch, label=S), fill='lightgreen')
+p
+```
+
+### 4. displays duplication events
+
+```{r vis-nhx4, exercise=TRUE, exercise.setup="vis-nhx3", message=FALSE, warning=FALSE}
+p <- p + geom_label(aes(label=D), fill='firebrick')
+p
+```
+
+
+### 4. displays bootstrap values
+
+```{r vis-nhx5, exercise=TRUE, exercise.setup="vis-nhx4", message=FALSE, warning=FALSE}
+p <- p + geom_text(aes(label=B), hjust = -.5)
+p
+```
+
+## ggtree examples
+
+### Visualizing bootstrap values as symbolic points
+
+### 1. Visualizing the tree
+
+```{r bp, exercise=TRUE, fig.width=8, fig.height=12}
+library(ggtree)
+library(treeio)
+library(TDbook)
+library(ggplot2)
+
+tree <- read.newick(text = text_RMI_tree, node.label = 'support')
+
+p <- ggtree(
+  tree,
+  size = 1.5, 
+  right = TRUE 
+)
+
+p1 <- p + 
+  geom_tiplab(
+    size = 4.5,  
+    hjust = -0.060, 
+    fontface = "bold" 
+    ) +
+  xlim(0, .09) 
+
+p1
+```
+
+### Visualizing bootstrap values as a continuous variable
+
+
+```{r bp2, exercise=TRUE, exercise.setup="bp", fig.width=8, fig.height=12}
+p2 <- p1 +
+  geom_nodepoint(
+    data = td_filter(parent != node), 
+    mapping = aes(fill = support), 
+    size = 3.5, 
+    shape = 21 
+    )
+
+p2
+```
+
+### Visualizing bootstrap values as a discrete variable
+
+```{r bp3, exercise=TRUE, exercise.setup="bp", fig.width=8, fig.height=12}
+p2 <- p1 +
+  geom_nodepoint(
+    data = td_filter(parent != node),
+    mapping = aes(fill = cut(support, c(0, 700, 900, 1000))), 
+    size = 3.5,
+    shape = 21
+    )
+p2
+```
+
+### Adjusting details
+
+```{r bp4, exercise=TRUE, exercise.setup="bp3", fig.width=8, fig.height=12, message=FALSE, warning=FALSE}
+p3 <- p2 + scale_fill_manual( # 更改点的颜色
+  values = c("white", "grey", "black"), # 点的颜色
+  guide = 'legend', 
+  name = 'Bootstrap Percentage(BP)', # legend标题
+  breaks = c('(900,1e+03]', '(700,900]', '(0,700]'), 
+  labels = expression(BP>=90,70 <= BP * " < 90", BP < 70) # 调整每个颜色的代表名字
+  )
+
+p4 <- p3 + theme(legend.position=c(0.2, 0.2))
+p5 <- p4 + geom_treescale()
+
+p5
+```
+
+## Annotating tree with data
+
+### 1. Estimating ancestral states and visualizing state transition
+
+```{r anc, exercise = TRUE, fig.width=15, fig.height=10, message=FALSE, warning=FALSE, out.width="100%"}
+library(ggimage)
+library(ggtree)
+library(TDbook)
+library(ggnewscale)
+
+# load `tree_boots`, `df_tip_data`, and `df_inode_data` from 'TDbook'
+
+mass <- setNames(df_tip_data$mass_in_kg, df_tip_data$Newick_label)
+fit <- phytools::fastAnc(tree_boots, mass, vars=TRUE, CI=TRUE)
+
+td <- data.frame(node = nodeid(tree_boots, names(mass)), trait = mass)
+nd <- data.frame(node = as.numeric(names(fit$ace)), trait = fit$ace)
+d <- rbind(td, nd)
+tree <- full_join(tree_boots, d, by='node')
+
+p <- ggtree(tree, aes(color=trait), continuous='color', size=3) +
+  scale_color_gradientn(colours=c("red", "orange", "green", "cyan", "blue"), 
+                        name="mass (kg)") + 
+  geom_tiplab(hjust = -.2) + xlim(-.1, 4)
+
+p 
+```
+
+### 2. Visualizing tree with taxa information
+```{r anc2, exercise = TRUE, exercise.setup='anc', fig.width=15, fig.height=10, message=FALSE, warning=FALSE, out.width="100%"}
+p2 <- p %<+% df_tip_data + 
+    new_scale_color() +
+    geom_tippoint(aes(shape = trophic_habit, color = trophic_habit), size=8) + 
+    theme(legend.position = "right") + 
+    scale_size_continuous(range = c(3, 10))
+
+p2
+```
+
+### 3. Visualizing tree with internal node information
+
+```{r anc3, exercise = TRUE, exercise.setup='anc2', fig.width=15, fig.height=10, message=FALSE, warning=FALSE, out.width="100%"}
+p3 <- p2 %<+% df_inode_data + 
+    geom_label(aes(label = vernacularName.y, fill = posterior)) + 
+    scale_fill_gradientn(colors = RColorBrewer::brewer.pal(3, "YlGnBu"))
+
+p3
+```
+
+
+### 4. Overlay organism silhouettes
+
+
+```{r anc4, exercise = TRUE, exercise.setup='anc3', fig.width=15, fig.height=10, message=FALSE, warning=FALSE, out.width="100%"}
+
+library(ggimage) 
+id <- phylopic_uid(df_tip_data$Newick_label) 
+
+p3 %<+% id + 
+  geom_tiplab(aes(image=uid), geom="phylopic", offset=.75, size=.1)
+
+```
+## Building a complex plot with ggtree and ggtreeExtra
+
+### 1. Visualize the tree structure
+```{r hmptree0, exercise=TRUE}
+
+# load data from TDbook, including 
+# tree_hmptree, 
+# df_tippoint (the abundance and types of microbes),
+# df_ring_heatmap (the abundance of microbes at different body sites),
+# and df_barplot_attr (the abundance of microbes of greatest prevalence)
+
+library(TDbook)
+tree_hmptree
+
+library(ggtree)
+library(ggtreeExtra)
+library(ggplot2)
+library(ggstar)
+library(ggnewscale)
+
+f <- ggtree(tree_hmptree, layout = 'fan') 
+
+f
+```
+
+### 2. Mapping data to the tree structure
+
+```{r hmptree, exercise=TRUE, exercise.setup="hmptree0"}
+f <- f %<+% df_tippoint + geom_star(
+                        mapping=aes(fill=Phylum, starshape=Type, size=Size),
+                        position="identity",starstroke=0.1) +
+        scale_fill_manual(values=c("#FFC125","#87CEFA","#7B68EE","#808080",
+                                "#800080", "#9ACD32","#D15FEE","#FFC0CB",
+                                "#EE6A50","#8DEEEE", "#006400","#800000",
+                                "#B0171F","#191970"),
+                           guide=guide_legend(keywidth = 0.5, 
+                                        keyheight = 0.5, order=1,
+                                        override.aes=list(starshape=15)),
+                           na.translate=FALSE)+
+        scale_starshape_manual(values=c(15, 1),
+                           guide=guide_legend(keywidth = 0.5, 
+                                        keyheight = 0.5, order=2),
+                           na.translate=FALSE)+
+        scale_size_continuous(range = c(1, 2.5),
+                           guide = guide_legend(keywidth = 0.5, 
+                                        keyheight = 0.5, order=3,
+                                        override.aes=list(starshape=15)))
+f
+```
+
+
+### 3.1. Aligning graph to the tree based on tree structure
+```{r hmptree-heatmap, exercise=TRUE, exercise.setup="hmptree", message=FALSE, warning=FALSE, fig.width=4, fig.height=8}
+head(df_ring_heatmap)
+p.heatmap <- ggplot() + 
+  geom_tile(data = df_ring_heatmap, 
+            mapping = aes(x = Sites, y = ID, fill = Sites, alpha = Abundance)
+            ) +
+  scale_alpha_continuous(range = c(0, 1)) +
+  scale_fill_manual(
+    values = c("#0000FF","#FFA500","#FF0000", 
+               "#800000", "#006400","#800080","#696969")
+    ) +
+  theme_tree()
+
+p.heatmap
+```
+
+```{r hmptree-heatmap2, exercise=TRUE, exercise.setup="hmptree", message=FALSE, warning=FALSE, fig.width=10, fig.height=8}
+f1 <- f + 
+  new_scale_fill() +
+  geom_fruit(
+    data = df_ring_heatmap,
+    geom = geom_tile,
+    mapping = aes(x = Sites, y = ID, fill = Sites, alpha = Abundance),
+    color = "grey50",
+    size = 0.02,
+    offset = 0.04 # control the spacing between the tree layer and heatmap layer
+    ) +
+  scale_fill_manual(values=c("#0000FF","#FFA500","#FF0000",
+                             "#800000", "#006400","#800080","#696969")
+                    ) +
+  scale_alpha_continuous(range = c(0, 1)) +
+  theme(
+    legend.key.height = unit(.5, 'cm'), # legend 大小 
+    legend.key.width = unit(.5, 'cm'),
+    legend.title = element_text(size = 8),
+    legend.text = element_text(size=6)
+    ) 
+
+f1
+```
+
+### 3.2. Aligning graph to the tree based on tree structure
+
+```{r hmptree-barplot, exercise=TRUE, exercise.setup="hmptree", message=FALSE, warning=FALSE, fig.width=4, fig.height=8}
+p.barplot <- ggplot() + 
+  geom_col(
+    data = df_barplot_attr, 
+    mapping = aes(x=HigherAbundance, y = ID, fill=Sites)
+    ) + 
+  scale_fill_manual(values=c("#0000FF","#FFA500","#FF0000", 
+                             "#800000", "#006400","#800080","#696969")
+                    ) + 
+  theme_tree2()
+
+p.barplot
+```
+
+```{r hmptree-barplot2, exercise=TRUE, exercise.setup="hmptree-heatmap2", fig.width=10, fig.height=8, message=FALSE, warning=FALSE}
+f2 <- f1 + 
+  geom_fruit(
+    data = df_barplot_attr,
+    geom = geom_col,
+    mapping = aes(x=HigherAbundance, y = ID, fill=Sites),
+    pwidth = .38, # the space ratio for plotting the barchart relative to the tree layer
+    axis.params = list(axis = 'x')
+    ) +
+  scale_fill_manual(values=c("#0000FF","#FFA500","#FF0000",
+                             "#800000", "#006400","#800080","#696969")) 
+
+f2
+```
+
+### 4. Transforming circular layout to rectangular layout
+
+```{r hmptree-rect, exercise=TRUE, exercise.setup="hmptree-barplot2", fig.width=10, fig.height=8, message=FALSE, warning=FALSE}
+f2 + layout_rectangular()
+```
