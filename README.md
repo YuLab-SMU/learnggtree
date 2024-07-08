@@ -23,7 +23,7 @@ The package provides practical tutorial for learning ggtree.
 Run the following codes in R:
 
 ```r
-install.packages("BiocManager")
+install.packages(c("BiocManager", "remotes"))
 BiocManager::install("YuLab-SMU/learnggtree")
 ```
 
