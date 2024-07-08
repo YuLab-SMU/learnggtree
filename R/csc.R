@@ -1,6 +1,6 @@
 ##' run csc-hku tutorial
 ##' 
-##' @title csc_ggtree
+##' @title csc
 ##' @importFrom ape rtree
 ##' @importFrom treeio read.nhx
 ##' @importFrom ggplot2 geom_label
@@ -15,7 +15,7 @@
 ##' @importFrom tidytree nodeid
 ##' @import TDbook
 ##' @export 
-csc_ggtree <- function() {
+csc <- function() {
     learnr::run_tutorial("csc-hku", package="learnggtree")
 }
 

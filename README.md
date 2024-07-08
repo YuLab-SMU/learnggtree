@@ -10,9 +10,7 @@ The package provides practical tutorial for learning ggtree.
 + <https://projects.croucher.org.hk/summer-courses/virus-evolution-and-epidemiology/programme>
 + **_When_: 15-19 July, 2024**
 + **_Where_: The University of Hong Kong**
-
-
-**_Instructor_: Guangchuang Yu**
++ **_Instructor_: Guangchuang Yu**
 
 ## 1. Install `R`
 
@@ -34,7 +32,7 @@ BiocManager::install("YuLab-SMU/learnggtree")
 Run the following command:
 
 ```r
-learnggtree::csc_ggtree()
+learnggtree::csc()
 ```
 
 
