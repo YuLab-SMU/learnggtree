@@ -23,7 +23,7 @@ t1 <- rtree(30)
 t1
 ```
 
-```{r tree-layout, exercise = TRUE, exercise.setup="rtree", fig.width=5, fig.height=10, out.width="95%"}
+```{r tree-layout, exercise = TRUE, exercise.setup="rtree", fig.width=4, fig.height=5}
 # try different layouts:
 #   rectangular, dendrogram, slanted, ellipse, roundrect
 #   fan, circular, inward_circular, radial, equal_angle
