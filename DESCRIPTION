@@ -1,12 +1,18 @@
 Package: learnggtree
 Title: Tutorial for Learning 'ggtree'
 Version: 0.0.1
-Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+Authors@R: c(
+       person("Guangchuang", "Yu",     email = "guangchuangyu@gmail.com", role = c("aut", "cre", "cph"), 
+            comment = c(ORCID = "0000-0002-6485-8781")),
+       person("Tommy Tsan-Yuk", "Lam", email = "tylam.tommy@gmail.com",   role = "ctb"),
+       person("Shuangbin", "Xu",       email = "xshuangbin@163.com",      role = "aut", 
+            comment = c(ORCID="0000-0003-3513-5362"))
+       )
 Description: Provides practical tutorial for learning ggtree.
 Imports:
     ape,
+    aplot,
+    dplyr,
     phytools,
     ggplot2,
     ggstar,
@@ -22,4 +28,4 @@ Imports:
 License: Artistic-2.0
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2

@@ -15,6 +15,7 @@ library(ggtree)
 
 ## Visualizing a tree
 
+### 1. Generate a random tree with 30 tips
 ```{r rtree, exercise = TRUE}
 library(ggtree)
 set.seed(2024-07-18)
@@ -22,6 +23,8 @@ t1 <- rtree(30)
 
 t1
 ```
+
+### 2. Visualize the tree 
 
 ```{r tree-layout, exercise = TRUE, exercise.setup="rtree", fig.width=4, fig.height=5}
 # try different layouts:
@@ -34,6 +37,20 @@ ggtree(t1)
 # ggtree(t1, layout = 'ellipse') 
 # ggtree(t1, layout = 'inward_circular') + xlim_tree(10)
 # ggtree(t1, layout = igraph::layout_with_kk) + geom_tiplab()
+```
+
+### 3. Export the plot to a file
+
+```{r treesave, exercise = TRUE, exercise.setup="rtree", fig.width=4, fig.height=5}
+p <- ggtree(t1, layout = 'ellipse') 
+png <- tempfile(fileext = '.png')
+png
+
+pdf <- tempfile(fileext = '.pdf')
+pdf
+
+ggsave(filename = png, plot = p)
+ggsave(filename = pdf, plot = p)
 ```
 
 
@@ -90,9 +107,9 @@ p <- p + geom_text(aes(label=B), hjust = -.5)
 p
 ```
 
-## ggtree examples
 
-### Visualizing bootstrap values as symbolic points
+
+## Visualizing bootstrap values as symbolic points
 
 ### 1. Visualizing the tree
 
@@ -228,6 +245,9 @@ p3 %<+% id +
   geom_tiplab(aes(image=uid), geom="phylopic", offset=.75, size=.1)
 
 ```
+
+
+
 ## Building a complex plot with ggtree and ggtreeExtra
 
 ### 1. Visualize the tree structure
@@ -356,4 +376,56 @@ f2
 
 ```{r hmptree-rect, exercise=TRUE, exercise.setup="hmptree-barplot2", fig.width=10, fig.height=8, message=FALSE, warning=FALSE}
 f2 + layout_rectangular()
+```
+
+## Visuzalization of potential reassortment
+
+### 1. Read in the two trees (H5 and N1 tree)
+
+
+```{r h5n1, exercise=TRUE, message=FALSE, warning=FALSE}
+library(treeio)
+library(ggplot2)
+library(ggtree)
+
+H5 <- read.newick(system.file("extdata/csc/H5_mcc.nwk", package="learnggtree"))
+N1 <- read.newick(system.file("extdata/csc/N1_mcc.nwk", package="learnggtree"))
+
+# extract data used in ggtree plot
+dH5 <- ggtree(H5)$data
+dN1 <- ggtree(N1)$data
+
+dH5
+```
+
+### 2. Flipping the N1 tree and merging the tip info of the two trees
+
+```{r h5n1-2, exercise=TRUE, exercise.setup="h5n1", message=FALSE, warning=FALSE}
+library(dplyr)
+
+dN1$x <- max(dN1$x) - dN1$x + max(dH5$x) + 1
+
+dd <- bind_rows(dH5, dN1) %>% filter(!is.na(label))
+dd
+```
+
+### 3. Visualizing the two trees face-to-face
+
+```{r h5n1-3, exercise=TRUE, exercise.setup="h5n1-2", fig.width=8, fig.height=6, message=FALSE, warning=FALSE}
+pp <- ggtree(H5) + geom_tree(data=dN1)
+pp
+```
+
+### 4. Connecting the taxa by lines
+
+```{r h5n1-4, exercise=TRUE, exercise.setup="h5n1-3", fig.width=14, fig.height=8,out.width='95%', message=FALSE, warning=FALSE}
+Cluster <- read.table(file = system.file("extdata/csc/taxa.cluster", package="learnggtree"), 
+                      sep = '\t', header = TRUE)
+Cluster_data <- merge(x=dd, y=Cluster, by.x="label", by.y = "name", all= TRUE)
+Cluster_data
+
+p3 <- pp + geom_line(aes(x, y, group=label, color=cluster), data=Cluster_data, alpha=.6)
+p4 <- pp + geom_line(aes(x, y, group=label, color=geography), data=Cluster_data, alpha=.6)
+
+aplot::plot_list(p3, p4, tag_levels = 'A')
 ```

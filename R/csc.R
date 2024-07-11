@@ -13,9 +13,11 @@
 ##' @importFrom learnr run_tutorial
 ##' @importFrom igraph layout_with_kk
 ##' @importFrom tidytree nodeid
+##' @importFrom aplot plot_list
+##' @importFrom dplyr bind_rows
 ##' @import TDbook
 ##' @export 
 csc <- function() {
-    learnr::run_tutorial("csc-hku", package="learnggtree")
+    learnr::run_tutorial("csc-hku", package="learnggtree", clean=TRUE)
 }
 
