@@ -5,7 +5,7 @@ Authors@R: c(
        person("Guangchuang", "Yu",     email = "guangchuangyu@gmail.com", role = c("aut", "cre", "cph"), 
             comment = c(ORCID = "0000-0002-6485-8781")),
        person("Tommy Tsan-Yuk", "Lam", email = "tylam.tommy@gmail.com",   role = "ctb"),
-       person("Shuangbin", "Xu",       email = "xshuangbin@163.com",      role = "aut", 
+       person("Shuangbin", "Xu",       email = "xshuangbin@163.com",      role = "ctb", 
             comment = c(ORCID="0000-0003-3513-5362"))
        )
 Description: Provides practical tutorial for learning ggtree.
