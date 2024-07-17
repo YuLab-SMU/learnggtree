@@ -429,3 +429,59 @@ p4 <- pp + geom_line(aes(x, y, group=label, color=geography), data=Cluster_data,
 
 aplot::plot_list(p3, p4, tag_levels = 'A')
 ```
+
+
+## Phylogeographic example
+
+see also <https://beast.community/workshop_continuous_diffusion_wnv#run-spread3>
+
+### Load the required packages
+
+```{r wnv, exercise=TRUE, message=FALSE, warning=FALSE}
+library(treeio)
+library(ggtree)
+library(OpenStreetMap)
+library(ggplot2)
+library(paletteer)
+```
+
+### Draw the map
+
+```{r wnv-1, exercise=TRUE, exercise.setup="wnv", fig.width=9.5, fig.height=4.5,out.width='95%', message=FALSE, warning=FALSE}
+mp <- openmap(c(46,-125),
+                c(21,-72),5,'apple-iphoto')
+
+map_latlon <- openproj(mp, projection = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
+
+pmap <- autoplot(map_latlon) 
+
+pmap
+```
+
+### Display the tree structure on the tree
+
+
+```{r wnv-2, exercise=TRUE, exercise.setup="wnv-1", fig.width=9.5, fig.height=4.5,out.width='95%', message=FALSE, warning=FALSE}
+
+## read.tree
+wnv_tree <- read.beast(system.file("extdata/csc/WNV_NA.tree", package="learnggtree"))
+
+## visualize the tree on the map
+pmap + 
+    geom_tree(aes(x=location2, y=location1, alpha = height, color = height, size = height), 
+          layout='slanted', data=wnv_tree, 
+          arrow = arrow(length=unit(0.1, "inches")), 
+          lineend = "round", linejoin = "round") +
+   scale_alpha_continuous(range = c(0.5, 1),trans = "reverse") +
+   scale_size_continuous(range = c(1.5, 0.3)) +
+   guides(alpha = "none",
+          size = "none") +
+   scale_colour_paletteer_c("pals::ocean.thermal",  breaks = seq(0, 10, 10/7),
+                    labels = c("2006-5", "2005-5", "2004-5", "2003-5", "2002-5", "2001-5","2000-5","1999-5"),
+                    name = "Date") +
+   theme(legend.key.height = unit(1, "null"),
+        legend.justification.top = "right") +
+   labs(x = "Longitude",
+        y = "Latitude")
+```
+
