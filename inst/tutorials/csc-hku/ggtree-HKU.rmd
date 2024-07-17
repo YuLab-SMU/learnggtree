@@ -169,12 +169,12 @@ p2
 ### Adjusting details
 
 ```{r bp4, exercise=TRUE, exercise.setup="bp3", fig.width=8, fig.height=12, message=FALSE, warning=FALSE}
-p3 <- p2 + scale_fill_manual( # 更改点的颜色
-  values = c("white", "grey", "black"), # 点的颜色
+p3 <- p2 + scale_fill_manual( 
+  values = c("white", "grey", "black"), 
   guide = 'legend', 
-  name = 'Bootstrap Percentage(BP)', # legend标题
+  name = 'Bootstrap Percentage(BP)', 
   breaks = c('(900,1e+03]', '(700,900]', '(0,700]'), 
-  labels = expression(BP>=90,70 <= BP * " < 90", BP < 70) # 调整每个颜色的代表名字
+  labels = expression(BP>=90,70 <= BP * " < 90", BP < 70) 
   )
 
 p4 <- p3 + theme(legend.position=c(0.2, 0.2))
