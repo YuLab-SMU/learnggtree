@@ -2,7 +2,6 @@
 
 export(csc)
 import(TDbook)
-importFrom(OpenStreetMap,openmap)
 importFrom(ape,rtree)
 importFrom(aplot,plot_list)
 importFrom(dplyr,bind_rows)

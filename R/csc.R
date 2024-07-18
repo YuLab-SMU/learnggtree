@@ -15,7 +15,7 @@
 ##' @importFrom tidytree nodeid
 ##' @importFrom aplot plot_list
 ##' @importFrom dplyr bind_rows
-##' @importFrom OpenStreetMap openmap
+## @importFrom OpenStreetMap openmap
 ##' @importFrom paletteer scale_colour_paletteer_c
 ##' @import TDbook
 ##' @export 

@@ -25,7 +25,6 @@ Imports:
     tidytree,
     TDbook,
     learnr,
-    OpenStreetMap,
     paletteer
 License: Artistic-2.0
 Encoding: UTF-8
